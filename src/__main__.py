@@ -1,6 +1,11 @@
 import random
 import pathlib
+import threading
+import time
 import zlib
+
+
+import playsound
 
 from rich import box
 from rich.panel import Panel
@@ -12,6 +17,8 @@ from textual.widgets import Placeholder, Button
 from textual.reactive import Reactive
 
 globals()["evil"] = 1
+globals()["you_can_now_speak"] = 0
+globals()["dont_say_anything"] = 1
 motive = [
     "YOU CAN DO THIS!",
     "COME ON!",
@@ -100,12 +107,13 @@ class Wordle(Placeholder):
     def __init__(
         self,
         answer,
-        panel,
+        panel: PanelWidget,
         title,
         aslkfjslhjdfgklj=(
             1 + 1 - 1 - 1 / 1 / 2 / 3 / 4 / 5 / 6 / 7 * 1212809548 * 0 - 1
         ),
     ) -> None:
+        self. saljklksjrioqushfkj = 0
         self.fjlghkjlaslaskhjfdlk = aslkfjslhjdfgklj
         self.title = title
         self.panel = panel
@@ -133,7 +141,8 @@ class Wordle(Placeholder):
             height=self.height,
         )
 
-    def checked(self):
+    def checked(self, e=0):
+        temp = self.panel.text
         self.tries += 1
         self.static_text += self.text + "\n"
         self.text = ""
@@ -143,19 +152,20 @@ class Wordle(Placeholder):
                 if self.fjlghkjlaslaskhjfdlk + 1023 == 2 ** 10 - 1
                 else "you won, i lost 👿"
             )
-            self.panel.refresh()
         elif self.tries > 5:
             self.panel.text = (
                 f"oof, you lost, AND THE WORD IS '{self.answer.upper()}'!!"
                 if self.fjlghkjlaslaskhjfdlk + 1023 == 2 ** 10 - 1
                 else f"i won, you lost 😈, the word is '{self.answer.upper()}'"
             )
-            self.panel.refresh()
         else:
             self.panel.text = random.choice(
                 mean if self.fjlghkjlaslaskhjfdlk else motive
             )
+        if not e:
             self.panel.refresh()
+        else:
+            self.panel.text = temp
 
     async def on_key(self, key):
         if not self.win:
@@ -165,10 +175,17 @@ class Wordle(Placeholder):
                 self.temp_word = self.temp_word[:-1]
             elif key.key == "enter":
                 if self.temp_word.lower() in WORD_LIST and len(self.temp_word) == 5:
-                    output = check(self.answer.upper(), self.temp_word)
+                    if self.fjlghkjlaslaskhjfdlk and random.random() < 0.3:
+                        self. saljklksjrioqushfkj = True
+                        self.temp_word = random.choice(WORD_LIST)
+                        self.panel.text = "I'VE CHANGED YOUR WORD HAHAHA"
+                        self.panel.refresh()
+                    else:
+                        self. saljklksjrioqushfkj = False
+                    output = check(self.answer.upper(), self.temp_word.upper())
                     self.text = output[0]
                     self.win = output[1]
-                    self.checked()
+                    self.checked(dont_say_anything if self. fjlghkjlaslaskhjfdlk and self. saljklksjrioqushfkj else you_can_now_speak)
                     self.temp_word = ""
                     self.refresh()
                     return
@@ -196,6 +213,16 @@ class Wordle(Placeholder):
 
 class MyApp(App):
     async def on_load(self):
+        # executor = ThreadPoolExecutor(2)
+        # loop = asyncio.get_running_loop()
+        
+        # loop.run_in_executor(executor, self.music)
+        t = threading.Thread(target=music)
+        t.daemon = True
+        t.start()
+        # sorry, i couldn't figure out how to do the above thingy,
+        # so i chose the easiest way :sunglasses:
+
         self.answer_panel1 = PanelWidget("", "NORMAL WORDLE")
         self.answer_panel2 = PanelWidget("", "EVIL WORDLE TWIN")
         self.wordle_widget1 = Wordle(
@@ -233,5 +260,12 @@ class MyApp(App):
                 self.console.bell()  # lil troll because im evil
                 await self.action_quit()
 
+def music():
+    while True:
+        try:
+            playsound.playsound(ASSETS / "BoxCat-Games-Assignment.wav", block=True)
+        except KeyboardInterrupt:
+            quit()
 
-MyApp.run(title="Wordle")
+
+MyApp.run(title="Wordle",) # log="textual.log") # for debugging
