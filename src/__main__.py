@@ -49,7 +49,7 @@ if not pathlib.Path("assets").exists():
     ASSETS = pathlib.Path("..") / "assets"
 else:
     ASSETS = pathlib.Path("assets")
-WORD_LIST_FILE = ASSETS / "WORDS_LIST_COMPRESSED"
+WORD_LIST_FILE = ASSETS / "dictionary" / "WORDS_LIST_COMPRESSED"
 with WORD_LIST_FILE.open("rb") as file:
     temp = zlib.decompress(file.read()).decode()
     WORD_LIST = [temp[i : i + 5] for i in range(0, len(temp), 5)]
@@ -178,7 +178,7 @@ class Wordle(Placeholder):
                     if self.fjlghkjlaslaskhjfdlk and random.random() < 0.3:
                         self. saljklksjrioqushfkj = True
                         self.temp_word = random.choice(WORD_LIST)
-                        self.panel.text = "I'VE CHANGED YOUR WORD HAHAHA"
+                        self.panel.text = "I'VE CHANGED YOUR WORD HAHAHA 😈"
                         self.panel.refresh()
                     else:
                         self. saljklksjrioqushfkj = False
@@ -263,7 +263,7 @@ class MyApp(App):
 def music():
     while True:
         try:
-            playsound.playsound(ASSETS / "BoxCat-Games-Assignment.wav", block=True)
+            playsound.playsound(ASSETS / "music" / "BoxCat-Games-Assignment.wav", block=True)
         except KeyboardInterrupt:
             quit()
 
