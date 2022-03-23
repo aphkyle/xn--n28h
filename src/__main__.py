@@ -1,9 +1,7 @@
 import random
 import pathlib
-import threading
-import time
 import zlib
-
+import threading
 
 import playsound
 
@@ -43,6 +41,9 @@ mean = [
     "im very evil 😈",
     "it took me so long to write these 😈",
     "nice one, can you do the next one though 😈",
+    "good luck 😈",
+    "oh this one is hard 😈",
+    "MUAHAHAHAHA 😈"
 ]
 
 if not pathlib.Path("assets").exists():
@@ -152,23 +153,24 @@ class Wordle(Placeholder):
                 if self.fjlghkjlaslaskhjfdlk + 1023 == 2 ** 10 - 1
                 else "you won, i lost 👿"
             )
+            self.panel.refresh()
         elif self.tries > 5:
             self.panel.text = (
                 f"oof, you lost, AND THE WORD IS '{self.answer.upper()}'!!"
                 if self.fjlghkjlaslaskhjfdlk + 1023 == 2 ** 10 - 1
                 else f"i won, you lost 😈, the word is '{self.answer.upper()}'"
             )
+            self.panel.refresh()
         else:
             self.panel.text = random.choice(
                 mean if self.fjlghkjlaslaskhjfdlk else motive
             )
-        if not e:
-            self.panel.refresh()
-        else:
-            self.panel.text = temp
+        if e:
+            self.panel.text = f"{temp} and {self.panel.text}"
+        self.panel.refresh()
 
     async def on_key(self, key):
-        if not self.win:
+        if not self.win and self.tries < 6:
             if key.key.isalpha() and len(key.key) == 1 and len(self.temp_word) < 5:
                 self.temp_word += key.key.upper()
             elif key.key == "ctrl+h":  # ctrl+h is somehow identified as backspace
@@ -180,12 +182,17 @@ class Wordle(Placeholder):
                         self.temp_word = random.choice(WORD_LIST)
                         self.panel.text = "I'VE CHANGED YOUR WORD HAHAHA 😈"
                         self.panel.refresh()
+                    elif self.fjlghkjlaslaskhjfdlk and random.random() < 0.2:
+                        self. saljklksjrioqushfkj = True
+                        self.tries += 1
+                        self.panel.text = "YOU'VE LOST A TRY 😈"
+                        self.panel.refresh()
                     else:
                         self. saljklksjrioqushfkj = False
                     output = check(self.answer.upper(), self.temp_word.upper())
                     self.text = output[0]
                     self.win = output[1]
-                    self.checked(dont_say_anything if self. fjlghkjlaslaskhjfdlk and self. saljklksjrioqushfkj else you_can_now_speak)
+                    self.checked(dont_say_anything if (self. fjlghkjlaslaskhjfdlk and self. saljklksjrioqushfkj) else you_can_now_speak)
                     self.temp_word = ""
                     self.refresh()
                     return
@@ -222,7 +229,7 @@ class MyApp(App):
         t.start()
         # sorry, i couldn't figure out how to do the above thingy,
         # so i chose the easiest way :sunglasses:
-
+        
         self.answer_panel1 = PanelWidget("", "NORMAL WORDLE")
         self.answer_panel2 = PanelWidget("", "EVIL WORDLE TWIN")
         self.wordle_widget1 = Wordle(
@@ -266,6 +273,5 @@ def music():
             playsound.playsound(ASSETS / "music" / "BoxCat-Games-Assignment.wav", block=True)
         except KeyboardInterrupt:
             quit()
-
 
 MyApp.run(title="Wordle",) # log="textual.log") # for debugging
