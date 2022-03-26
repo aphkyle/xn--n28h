@@ -1,5 +1,5 @@
 import random
-import pathlib
+from pathlib import Path
 import zlib
 import threading
 
@@ -46,15 +46,15 @@ mean = [
     "MUAHAHAHAHA 😈"
 ]
 
-if not pathlib.Path("assets").exists():
-    ASSETS = pathlib.Path("..") / "assets"
-else:
-    ASSETS = pathlib.Path("assets")
-WORD_LIST_FILE = ASSETS / "dictionary" / "WORDS_LIST_COMPRESSED"
-with WORD_LIST_FILE.open("rb") as file:
+ASSETS = Path(__file__).parent.parent / "assets"
+WORDS_LIST_FILE = ASSETS / "dictionary" / "WORDS_LIST_COMPRESSED"
+CHECK_LIST_FILE = ASSETS / "dictionary" / "CHECK_LIST_COMPRESSED"
+with WORDS_LIST_FILE.open("rb") as file:
     temp = zlib.decompress(file.read()).decode()
-    WORD_LIST = [temp[i : i + 5] for i in range(0, len(temp), 5)]
-
+    WORDS_LIST = [temp[i : i + 5] for i in range(0, len(temp), 5)]
+with CHECK_LIST_FILE.open("rb") as file:
+    temp = zlib.decompress(file.read()).decode()
+    CHECK_LIST = [temp[i : i + 5] for i in range(0, len(temp), 5)]
 
 def check(answer, given):
     if answer == given:
@@ -176,10 +176,11 @@ class Wordle(Placeholder):
             elif key.key == "ctrl+h":  # ctrl+h is somehow identified as backspace
                 self.temp_word = self.temp_word[:-1]
             elif key.key == "enter":
-                if self.temp_word.lower() in WORD_LIST and len(self.temp_word) == 5:
+                word = self.temp_word.lower()
+                if (word in CHECK_LIST or word in WORDS_LIST) and len(self.temp_word) == 5:
                     if self.fjlghkjlaslaskhjfdlk and random.random() < 0.3:
                         self. saljklksjrioqushfkj = True
-                        self.temp_word = random.choice(WORD_LIST)
+                        self.temp_word = random.choice(WORDS_LIST)
                         self.panel.text = "I'VE CHANGED YOUR WORD HAHAHA 😈"
                         self.panel.refresh()
                     elif self.fjlghkjlaslaskhjfdlk and random.random() < 0.2:
@@ -229,14 +230,13 @@ class MyApp(App):
         t.start()
         # sorry, i couldn't figure out how to do the above thingy,
         # so i chose the easiest way :sunglasses:
-        
         self.answer_panel1 = PanelWidget("", "NORMAL WORDLE")
         self.answer_panel2 = PanelWidget("", "EVIL WORDLE TWIN")
         self.wordle_widget1 = Wordle(
-            random.choice(WORD_LIST), self.answer_panel1, "WORDLE"
+            random.choice(WORDS_LIST), self.answer_panel1, "WORDLE"
         )
         self.wordle_widget2 = Wordle(
-            random.choice(WORD_LIST), self.answer_panel2, "WORDLE'S EVIL TWIN", evil
+            random.choice(WORDS_LIST), self.answer_panel2, "WORDLE'S EVIL TWIN", evil
         )
         self.restart_button = Button("RESTART", name="restart")
         self.quit_button = Button("QUIT", name="quit", style="white on red")
@@ -248,8 +248,8 @@ class MyApp(App):
     async def on_mount(self) -> None:
         await self.view.dock(self.wordle_widget1, size=8)
         await self.view.dock(self.wordle_widget2, size=8)
-        await self.view.dock(self.answer_panel1, size=3)
-        await self.view.dock(self.answer_panel2, size=3)
+        await self.view.dock(self.answer_panel1, size=4)
+        await self.view.dock(self.answer_panel2, size=4)
         await self.view.dock(self.restart_button, size=3)
         await self.view.dock(self.quit_button, size=3)
 
@@ -257,10 +257,10 @@ class MyApp(App):
         if isinstance(message.sender, Button):
             if message.sender.name == "restart":
                 await self.wordle_widget1.reset(
-                    random.choice(WORD_LIST), self.answer_panel1
+                    random.choice(WORDS_LIST), self.answer_panel1
                 )
                 await self.wordle_widget2.reset(
-                    random.choice(WORD_LIST), self.answer_panel2
+                    random.choice(WORDS_LIST), self.answer_panel2
                 )
                 self.refresh()
             elif message.sender.name == "quit":
