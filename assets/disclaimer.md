@@ -17,7 +17,7 @@ p.mkdir(parents=True, exist_ok=True)
 with (p / "WORDS_LIST_COMPRESSED").open("wb") as file:
     file.write(zlib.compress(''.join(lst).encode()))
 ```
-# The `music/BoxCat-Games-Assignment.wav` file,
+# The `music/BoxCat-Games-Assignment.wav` file (does not exist in the `without music` version),
 It is renamed (i dont want files with spaces, sorry),
 
 and converted to `wav` because `mp3` files doesn't seem to work on playsound,
